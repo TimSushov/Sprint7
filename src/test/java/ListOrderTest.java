@@ -5,16 +5,17 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
+import steps.StepsOrder;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
-public class ListOrderTest {
+public class ListOrderTest extends StepsOrder {
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
+        RestAssured.baseURI = BASE_URI;
     }
 
     @Test
@@ -24,15 +25,4 @@ public class ListOrderTest {
         getListOrder(200);
     }
 
-    @Step("Create Order And Set Color")
-    public void getListOrder(int statusCode) {
-
-        given()
-                .get("api/v1/orders")
-                .then().statusCode(statusCode)
-                .and()
-                .assertThat().body("pageInfo.limit", equalTo(30))
-                .and()
-                .assertThat().body("orders.id[29]", notNullValue());
-    }
 }

@@ -2,24 +2,25 @@ package steps;
 
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
-import resours.CourierData;
-import resours.Urls;
+import resours.*;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
-public class StepsCourier extends Urls {
+public class StepsCourier extends RequestSpec {
 
     @Step("Сourier Id Extract")
     public int courierIdExtract(String login, String password ) {
         CourierData courierData = new CourierData(login, password);
+
         int coeurierId = given()
+                .spec(requestSpec())
                 .header("Content-type", "application/json")
                 .and()
                 .body(courierData)
                 .when()
-                .post(COURIER_LOGIN)
+                .post(Urls.COURIER_LOGIN)
                 .then().extract().body().path("id");
         return coeurierId;
     }
@@ -29,11 +30,12 @@ public class StepsCourier extends Urls {
         CourierData courierData = new CourierData(login, password, name);
         Response response =
                 given()
+                        .spec(requestSpec())
                         .header("Content-type", "application/json")
                         .and()
                         .body(courierData)
                         .when()
-                        .post(COURIER_CREATE);
+                        .post(Urls.COURIER_CREATE);
         response.then().statusCode(statusCode);
         if(statusCode == 201) {
             response.then().assertThat().body("ok", equalTo(true));
@@ -49,25 +51,25 @@ public class StepsCourier extends Urls {
         CourierData courierData = new CourierData(login, password, name);
 
         given()
+                .spec(requestSpec())
                 .header("Content-type", "application/json")
                 .and()
                 .body(courierData)
                 .when()
-                .post(COURIER_CREATE);
+                .post(Urls.COURIER_CREATE);
     }
 
     @Step("Create courier without login")
     public void createCourierWithoutLogin(String setPassword, String setName, int statusCode){
-        String json = "{\n" +
-                "    \"password\": \""+setPassword+"\",\n" +
-                "    \"firstName\": \""+setName+"\"\n" +
-                "}";
+        CourierWithoutLoginData courierWithoutLoginData = new CourierWithoutLoginData(setPassword, setName);
+
         given()
+                .spec(requestSpec())
                 .header("Content-type", "application/json")
                 .and()
-                .body(json)
+                .body(courierWithoutLoginData)
                 .when()
-                .post(COURIER_CREATE)
+                .post(Urls.COURIER_CREATE)
                 .then().statusCode(statusCode)
                 .and()
                 .assertThat().body("message", equalTo("Недостаточно данных для создания учетной записи"));
@@ -75,16 +77,15 @@ public class StepsCourier extends Urls {
 
     @Step("Create courier without password")
     public void createCourierWithoutPassword(String setLogin, String setName, int statusCode){
-        String json = "{\n" +
-                "    \"login\": \""+setLogin+"\",\n" +
-                "    \"firstName\": \""+setName+"\"\n" +
-                "}";
+        CourierWithoutPasswordData courierWithoutPasswordData = new CourierWithoutPasswordData(setLogin, setName);
+
         given()
+                .spec(requestSpec())
                 .header("Content-type", "application/json")
                 .and()
-                .body(json)
+                .body(courierWithoutPasswordData)
                 .when()
-                .post(COURIER_CREATE)
+                .post(Urls.COURIER_CREATE)
                 .then().statusCode(statusCode)
                 .and()
                 .assertThat().body("message", equalTo("Недостаточно данных для создания учетной записи"));
@@ -92,16 +93,15 @@ public class StepsCourier extends Urls {
 
     @Step("Create courier without name")
     public void createCourierWithoutName(String setLogin, String setPassword, int statusCode){
-        String json = "{\n" +
-                "    \"login\": \""+setLogin+"\",\n" +
-                "    \"password\": \""+setPassword+"\"\n" +
-                "}";
+        CourierWithoutNameData courierWithoutNameData = new CourierWithoutNameData(setLogin, setPassword);
+
         given()
-                .header("Content-type", "application/json") // заполни header
+                .spec(requestSpec())
+                .header("Content-type", "application/json")
                 .and()
-                .body(json)
+                .body(courierWithoutNameData)
                 .when()
-                .post(COURIER_CREATE)
+                .post(Urls.COURIER_CREATE)
                 .then().statusCode(statusCode)
                 .and()
                 .assertThat().body("ok", equalTo(true));
@@ -110,7 +110,8 @@ public class StepsCourier extends Urls {
     @Step("Delete courier")
     public void deleteCourier(int id){
         given()
-                .delete(setCourierDelete(id));
+                .spec(requestSpec())
+                .delete(Urls.setCourierDelete(id));
     }
 
     @Step("Login courier In System")
@@ -118,11 +119,12 @@ public class StepsCourier extends Urls {
         CourierData courierData = new CourierData(login, password);
         Response response =
                 given()
+                        .spec(requestSpec())
                         .header("Content-type", "application/json")
                         .and()
                         .body(courierData)
                         .when()
-                        .post(COURIER_LOGIN);
+                        .post(Urls.COURIER_LOGIN);
         response.then().statusCode(statusCode);
         if(statusCode == 200) {
             response.then().assertThat().body("id", notNullValue());
@@ -135,15 +137,15 @@ public class StepsCourier extends Urls {
 
     @Step("Login courier In System Without Login")
     public void loginCourierInSystemWithoutLogin(String setPassword, int statusCode) {
-        String json ="{\n" +
-                "    \"password\": \""+ setPassword +"\"\n" +
-                "}";
+        CourierInSystemWithoutLoginData courierInSystemWithoutLoginData = new CourierInSystemWithoutLoginData(setPassword);
+
         given()
+                .spec(requestSpec())
                 .header("Content-type", "application/json")
                 .and()
-                .body(json)
+                .body(courierInSystemWithoutLoginData)
                 .when()
-                .post(COURIER_LOGIN)
+                .post(Urls.COURIER_LOGIN)
                 .then().statusCode(statusCode)
                 .and()
                 .assertThat().body("message", equalTo("Недостаточно данных для входа"));
@@ -151,15 +153,15 @@ public class StepsCourier extends Urls {
 
     @Step("Login courier In System Without Password")
     public void loginCourierInSystemWithoutPassword(String setLogin, int statusCode) {
-        String json ="{\n" +
-                "    \"login\": \""+ setLogin +"\"\n" +
-                "}";
+        CourierInSystemWithoutPasswordData courierInSystemWithoutPasswordData = new CourierInSystemWithoutPasswordData(setLogin);
+
         given()
+                .spec(requestSpec())
                 .header("Content-type", "application/json")
                 .and()
-                .body(json)
+                .body(courierInSystemWithoutPasswordData)
                 .when()
-                .post(COURIER_LOGIN)
+                .post(Urls.COURIER_LOGIN)
                 .then().statusCode(statusCode)
                 .and()
                 .assertThat().body("message", equalTo("Недостаточно данных для входа"));

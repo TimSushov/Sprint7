@@ -10,12 +10,13 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
-public class StepsOrder extends Urls {
+public class StepsOrder extends RequestSpec {
     @Step("Create Order And Set Color")
     public void getListOrder(int statusCode) {
 
         given()
-                .get(CREATE_ORDER_OR_GET_LIST_ORDERS)
+                .spec(requestSpec())
+                .get(Urls.CREATE_ORDER_OR_GET_LIST_ORDERS)
                 .then().statusCode(statusCode)
                 .and()
                 .assertThat().body("pageInfo.limit", equalTo(30))
@@ -28,11 +29,12 @@ public class StepsOrder extends Urls {
         OrderData orderData = new OrderData(firstName, lastName, address, metroStation, phone, rentTime, deliveryDate, comment, color);
 
         given()
+                .spec(requestSpec())
                 .header("Content-type", "application/json")
                 .and()
                 .body(orderData)
                 .when()
-                .post(CREATE_ORDER_OR_GET_LIST_ORDERS)
+                .post(Urls.CREATE_ORDER_OR_GET_LIST_ORDERS)
                 .then().statusCode(statusCode)
                 .and()
                 .assertThat().body("track", notNullValue());

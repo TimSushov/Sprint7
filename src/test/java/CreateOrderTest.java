@@ -1,22 +1,16 @@
 import io.qameta.allure.Description;
-import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import steps.StepsOrder;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.notNullValue;
 
 @RunWith(Parameterized.class)
-public class CreateOrderTest extends StepsOrder {
+public class CreateOrderTest {
     private String firstName;
     private String lastName;
     private String address;
@@ -49,16 +43,13 @@ public class CreateOrderTest extends StepsOrder {
         };
     }
 
-    @Before
-    public void setUp() {
-        RestAssured.baseURI = BASE_URI;
-    }
+    StepsOrder stepsOrder = new StepsOrder();
 
     @Test
     @DisplayName("Создать заказ с разным цветом самоката")
     @Description("Тестируем с серым, черным, без цвета, оба цвета")
     public void createOrderWithAnyColor() {
-        createOrderSetColor(firstName, lastName, address, metroStation, phone, rentTime, deliveryDate, comment, color, 201);
+        stepsOrder.createOrderSetColor(firstName, lastName, address, metroStation, phone, rentTime, deliveryDate, comment, color, 201);
     }
 
 }
